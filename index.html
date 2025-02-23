@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Query Support</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2 style="display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.7); padding: 15px; width: 100%; text-align: center; font-size: 24px; font-weight: bold; color: white;">
+        <img src="images.jpeg" alt="Logo" style="height: 40px; margin-right: 10px;"> 
+        Welcome to Lords Institute of Engineering and Technology Student Query Support
+    </h2>
+    <div class="chat-container">
+        <div class="chat-header">
+            Lords Chat Bot
+        </div>
+        <div class="chat-box" id="chat-history"></div>
+        <div class="chat-input">
+            <input type="text" id="question" placeholder="Ask a question..." onkeypress="handleKeyPress(event)">
+            <button onclick="getAnswer()">Submit</button>
+            <button class="mic-button" id="mic-btn" onclick="startListening()">🎤</button>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = [];
+        let speech = new SpeechSynthesisUtterance();
+        let recognition;
+        let isListening = false;
+
+        async function getAnswer()   {
+    let questionInput = document.getElementById("question");
+    let question = questionInput.value.trim().toLowerCase();
+
+    if (!question) return;
+
+    chatHistory.push({ type: "user", text: question });
+    updateChatHistory(document.getElementById("chat-history"));
+
+    let fetchedAnswer = "";
+    
+    if (question.includes("what event is going on in lords lords institute of engineering and technology first year campus")) {
+        fetchedAnswer = "The Talent Hunt event";
+      }
+      else if (question.includes("who is your creator") ||
+        question.includes("who is your founder") || 
+        question.includes("who is your owner") || 
+        question.includes("who is your inventor")) {
+        fetchedAnswer = "Zeeshan Hussain";
+    } 
+      else if (question.includes("which event is going on in this week")) {
+        fetchedAnswer = "The Talent Hunt event";
+      }
+      else if (question.includes("what is the instresting of lords institute of engineering and technology"))  {
+        fetchedAnswer = "The college is recognized by Telangana State Council of Higher Education (TSCHE), Government of Telangana; Approved by All India Council for Technical Education (AICTE); Affiliated to Osmania University; Accredited by National Board of Accreditation (NBA), National Assessment and Accreditation Council (NAAC) with 'A' Grade, National Accreditation Board for Testing and Calibration Laboratories (NABL); Conferred as Autonomous by University Grants Commission (UGC) from 2021 to 2032 and impanelled in UGC 2F. LIET hosts the Telangana Chapter of the International Network for Outcome Based Education IN4OBE which is the first in India.[3].";
+      }
+      else if (question.includes("how many student are studying in lords institute of engineering and technolog"))  {
+        fetchedAnswer - "As of the latest available information, Lords Institute of Engineering and Technology (LIET) in Hyderabad admits a total of 1,140 undergraduate students annually through the TS-EAMCET exam, with an additional 126 postgraduate students through GATE and PGECET for M.E./M.Tech. degrees, and 240 postgraduate students through ICET for the MBA program. This brings the total annual intake to approximately 1,506 students. The institution currently serves around 3,000 students across its engineering and management programs.";
+      }
+      else if (question.includes("who is the dean of first year in lords institute of engineering and technology")) {
+        fetchedAnswer = "Dr Sasi Kiran Jangala";
+      }
+      else if (question.includes("who is the principal of lords institute of engineering and technology")) {
+        fetchedAnswer = "Ravi Kishore Singh.";
+      }
+      else if (question.includes("who is the chairman of lords institute of engineering and technology"))  {
+        fetchedAnswer = "Basha Mohiuddin.";
+      }
+      else if (question.includes("tell me about lords institute of engineering and technology"))  {
+        fetchedAnswer = "The college is recognized by Telangana State Council of Higher Education (TSCHE), Government of Telangana; Approved by All India Council for Technical Education (AICTE); Affiliated to Osmania University; Accredited by National Board of Accreditation (NBA), National Assessment and Accreditation Council (NAAC) with 'A' Grade, National Accreditation Board for Testing and Calibration Laboratories (NABL); Conferred as Autonomous by University Grants Commission (UGC) from 2021 to 2032 and impanelled in UGC 2F. LIET hosts the Telangana Chapter of the International Network for Outcome Based Education IN4OBE which is the first in India.[3].";
+      }
+      else if (question.includes("when was liet established"))  {
+        fetchedAnswer = "LIET was established in 2002.";
+      }  
+      else if (question.includes("what affiliations and accreditations does liet have"))  {
+        fetchedAnswer = "Affiliated to Osmania UniversiRecognized by the Telangana State Council of Higher Education (TSCHE)Approved by the All India Council for Technical Education (AICTE)Autonomous by the University Grants Commission (UGC) from 2021 to 2032.";
+      }
+      else if (question.includes("who is the vice chairman of lords institute of engineering and technology"))  {
+        fetchedAnswer = "Syed Tausif Ahmed.";
+      }
+      else if (question.includes("what programs does lords institute of engineering and technology offer"))  {
+        fetchedAnswer = "LIET offers undergraduate programs in Bachelor of Engineering (BE) across various specializations and postgraduate programs including Master of Business Administration (MBA) and Master of Technology (M.Tech).";
+      }
+      else if (question.includes("What are the eligibility criteria for BE programs"))  {
+        fetchedAnswer = "Admission to the BE programs is based on the Telangana State Engineering, Agriculture, and Medical Common Entrance Test (TS EAMCET) scores.";
+      }
+   else if (question.includes("tell me about your founder") || 
+        question.includes("tell me about your inventor")) {
+        fetchedAnswer = "Zeeshan Hussain, a student of BE first year from AIML-B at Lords Institute of Engineering and Technology.";
+    } 
+   else if (question.includes("where is lords institute of engineering and technology located"))  {
+        fetchedAnswer = "Lords Institute of Engineering and Technology (LIET) is a self-financing Muslim Minority Autonomous Engineering College near Appa Junction, Himayath Sagar, Ranga Reddy district, Telangana, India.";   
+      }
+   else if (question.includes("tell me about lords institute of Engineering and Technology"))  {
+        fetchedAnswer = "Lords Institute of Engineering and Technology is one of the top engineering colleges in Hyderabad, offering courses in AI, ML, CSE, ECE, and more.";    
+      }
+    else {
+        try {
+            let prompt = `Answer the following question concisely in 5-6 lines: ${question}`;
+
+            // If user specifies a word limit, adjust the prompt
+            let match = question.match(/in (\d+) words|in (\d+) lines/);
+            if (match) {
+                let specifiedLimit = match[1] || match[2];
+                prompt = `Answer in ${specifiedLimit} words: ${question}`;
+            }
+
+            let response = await fetch("http://localhost:4000/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: prompt })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            let data = await response.json();
+            fetchedAnswer = data.answer?.trim() || "I couldn't find a relevant answer. Please try again.";
+
+        } catch (error) {
+            console.error("API Fetch Error:", error);
+            fetchedAnswer = "Error fetching answer. Please try again later.";
+        }
+    }
+
+    chatHistory.push({ type: "bot", text: fetchedAnswer });
+    updateChatHistory(document.getElementById("chat-history"));
+
+    speakText(fetchedAnswer);
+
+    questionInput.value = "";
+    questionInput.focus();
+}
+
+
+        function updateChatHistory(box) {
+            box.innerHTML = chatHistory.map(entry => 
+                `<div class="chat-message ${entry.type === 'user' ? 'user-message' : 'bot-message'}">${entry.text}</div>`
+            ).join("");
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                getAnswer();
+            }
+        }
+
+        function startListening() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+
+            if (!recognition) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = "en-US";
+
+                recognition.onstart = function() {
+                    isListening = true;
+                    document.getElementById("mic-btn").classList.add("listening");
+                    document.getElementById("mic-btn").innerText = "🎙 Listening...";
+                };
+
+                recognition.onresult = function(event) {
+                    let transcript = event.results[0][0].transcript;
+                    document.getElementById("question").value = transcript;
+                    getAnswer();
+                };
+
+                recognition.onerror = function(event) {
+                    console.error("Speech recognition error:", event.error);
+                    document.getElementById("mic-btn").innerText = "🎤";
+                    document.getElementById("mic-btn").classList.remove("listening");
+                };
+
+                recognition.onend = function() {
+                    isListening = false;
+                    document.getElementById("mic-btn").innerText = "🎤";
+                    document.getElementById("mic-btn").classList.remove("listening");
+                };
+            }
+
+            if (!isListening) {
+                recognition.start();
+            } else {
+                recognition.stop();
+            }
+        }
+        function speakText(text) {
+    speechSynthesis.cancel(); // Stop any ongoing speech
+    let speech = new SpeechSynthesisUtterance(text);
+    speech.rate = 1;
+    speech.volume = 1;
+    speech.pitch = 1;
+
+    // Detect language based on Unicode ranges
+    if (/[\u0900-\u097F]/.test(text)) {
+        speech.lang = "hi-IN"; // Hindi
+    } else if (/[\u0C00-\u0C7F]/.test(text)) {
+        speech.lang = "te-IN"; // Telugu
+    } else if (/[\u4E00-\u9FFF]/.test(text)) {
+        speech.lang = "zh-CN"; // Chinese 
+    } else if (/[\u3040-\u30FF]/.test(text)) {
+        speech.lang = "ja-JP"; // Japanese
+    } else if (/[\u0400-\u04FF]/.test(text)) {
+        speech.lang = "ru-RU"; // Russian
+    } else if (/[\u00C0-\u017F]/.test(text)) {
+        speech.lang = "de-DE"; // German
+    } else {
+        speech.lang = "en-US"; // Default to English
+    }
+
+    speechSynthesis.speak(speech);
+}
+
+        
+
+    </script>
+</body>
+</html>
